@@ -419,10 +419,10 @@ elif page == "Blind spots":
     st.subheader("Three ways this dashboard could mislead you")
 
     mismatched = cal[cal["schedule_mismatch"]]
-    missing_pct = df["nom_arr_time"].isna().mean() * 100
+    missing_pct = df["nom_dep_time"].isna().mean() * 100
     max_load = int(df["psngr_load"].max())
 
-    st.markdown("**1. Provenance — the weekday name is not the schedule that ran**")
+    st.markdown("**1. Schedule names do not always match weekday names**")
     if not mismatched.empty:
         rows = ", ".join(
             f"{r.service_date.date()} ({r.weekday_name} calendar day, "
@@ -447,19 +447,16 @@ elif page == "Blind spots":
             "add a holiday date to `data/` and this panel will flag it."
         )
 
-    st.markdown("**2. Missingness — scheduled times exist for a minority of stops**")
+    st.markdown("**2. Delays by stop times are inaccurate**")
     st.markdown(
-        f"`nom_arr_time` (the scheduled arrival time) is blank for "
-        f"{missing_pct:.0f}% of stop-events in the loaded data — it is only "
-        "recorded at official timepoints, not at every stop along the route. "
-        "Any chart of schedule adherence or lateness built from this field "
-        "necessarily describes only those timepoint stops. A viewer could "
-        "easily read 'the bus runs on time' as a claim about the whole route, "
-        "when most stops never had a scheduled time to compare against in "
-        "the first place."
+        f"`nom_dep_time` (the scheduled departure time) is blank for "
+        f"{missing_pct:.0f}% of stop-events in the loaded data — it is not  "
+        "recorded at every stop along the route." "This means that while "
+        "delays can be calculated for some stops, it is not calculated for "
+        "all stops."
     )
 
-    st.markdown("**3. Resolution — a load count is not a crowding measure**")
+    st.markdown("**3. Load counts do not account for vehicle size**")
     st.markdown(
         f"The highest `psngr_load` observed in the loaded data is {max_load} "
         "passengers onboard. This dataset has no seated or standing capacity "
@@ -468,11 +465,4 @@ elif page == "Blind spots":
         "empty for its size — a viewer looking at the load-profile chart "
         "could easily mistake a raw count for a crowding percentage, which "
         "this dashboard cannot compute."
-    )
-
-    st.info(
-        "None of these are 'the data is noisy' or 'more charts would help' — "
-        "each is a specific conclusion the charts above could lead someone "
-        "to reach that would not actually be true.",
-        icon="⚠️",
     )
